@@ -57,7 +57,6 @@ const Home = (props) => {
 
   const fetchFollowingTweets = async (userId, token) => {
     const res = await getFollowingTweets(userId, token);
-    console.log("db fetch following tweets", res);
     if (res.success) {
       setfollwingTweetsApiStatus((prev) => {
         return { ...prev, loading: false, success: true };
@@ -83,9 +82,6 @@ const Home = (props) => {
   const updateTweetsOnDelete = (tweetId) => {
     setAllTweets((prev) => [...prev.filter((tweet) => tweet._id !== tweetId)]);
   };
-
-  console.log("fetch following tweets", fetchFollowingTweets);
-  console.log("fetch All tweets", fetchAllTweets);
 
   return (
     <Container sx={{ paddingTop: 4, paddingBottom: 4 }}>
