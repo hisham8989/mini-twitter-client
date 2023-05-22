@@ -9,13 +9,13 @@ const MainComponent = ({
   apiStatus,
   addTweet,
   updateUser,
-  addFollowedUserTweets,
+  updateTweetsOnFollow,
   removeUnfollowedUserTweets,
+  isFollowing,
+  updateIsFollowing,
+  updateTweetsOnDelete,
 }) => {
   const handleSubmitTweet = async (values, actions) => {
-    // const userJson = localStorage.getItem("user");
-    // if (userJson) {
-    //   const user = JSON.parse(userJson);
     try {
       const { userInfo, token } = getUserLoggedInUser();
       const res = await createTweet(values.content, userInfo._id, token);
@@ -36,8 +36,11 @@ const MainComponent = ({
         tweets={tweets}
         apiStatus={apiStatus}
         updateUser={updateUser}
-        addFollowedUserTweets={addFollowedUserTweets}
+        updateTweetsOnFollow={updateTweetsOnFollow}
         removeUnfollowedUserTweets={removeUnfollowedUserTweets}
+        isFollowing={isFollowing}
+        updateIsFollowing={updateIsFollowing}
+        updateTweetsOnDelete={updateTweetsOnDelete}
       />
     </Container>
   );

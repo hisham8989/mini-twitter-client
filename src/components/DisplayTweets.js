@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, Skeleton, Typography } from "@mui/material";
 import TweetCard from "./TweetCard";
 import { getUserLoggedInUser } from "../manager/user.manager";
@@ -7,8 +6,11 @@ const DisplayTweets = ({
   tweets,
   apiStatus,
   updateUser,
-  addFollowedUserTweets,
+  updateTweetsOnFollow,
   removeUnfollowedUserTweets,
+  isFollowing,
+  updateIsFollowing,
+  updateTweetsOnDelete,
 }) => {
   if (apiStatus.loading) {
     return (
@@ -40,19 +42,23 @@ const DisplayTweets = ({
       <Typography variant="h6" sx={{ mb: 2, color: "black" }}>
         Tweets
       </Typography>
-      {/* TODO add tweet nhi ., add all tweets who got followed */}
-      {tweets.map((tweet, index) => (
-        <TweetCard
-          key={`tweet-card-${index + 1}`}
-          updateUser={updateUser}
-          tweetUser={tweet.user}
-          content={tweet.content}
-          loggedInUser={userInfo}
-          tweetId={tweet._id}
-          addFollowedUserTweets={addFollowedUserTweets}
-          removeUnfollowedUserTweets={removeUnfollowedUserTweets}
-        />
-      ))}
+      {tweets.map((tweet, index) => {
+        return (
+          <TweetCard
+            key={`tweet-card-${index + 1}`}
+            updateUser={updateUser}
+            tweetUser={tweet.user}
+            content={tweet.content}
+            loggedInUser={userInfo}
+            tweetId={tweet._id}
+            updateTweetsOnFollow={updateTweetsOnFollow}
+            removeUnfollowedUserTweets={removeUnfollowedUserTweets}
+            updateIsFollowing={updateIsFollowing}
+            isFollowing={isFollowing}
+            updateTweetsOnDelete={updateTweetsOnDelete}
+          />
+        );
+      })}
     </Box>
   );
 };

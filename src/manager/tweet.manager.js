@@ -16,10 +16,10 @@ export const getFollowingTweets = async (userId, token) => {
   }
 };
 
-export const getTweets = async (token) => {
+export const getTweets = async (userId = null, token) => {
   try {
     if (!token) throw Error("token has expired");
-    const url = `${BASE_URL}/tweets/`;
+    const url = `${BASE_URL}/tweets?userId=${userId ? userId : ""}`;
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -43,6 +43,22 @@ export const createTweet = async (content, userId, token) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ content }),
+    });
+    return res.json();
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const destroyTweet = async (tweetId, token) => {
+  try {
+    if (!token) throw Error("token has expired");
+    const url = `${BASE_URL}/tweets/${tweetId}`;
+    const res = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
     return res.json();
   } catch (err) {

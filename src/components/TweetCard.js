@@ -2,6 +2,8 @@ import React from "react";
 import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import { toggleFollowUnFollowUser } from "../manager/follow.manager";
 import { getUserLoggedInUser } from "../manager/user.manager";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import { destroyTweet } from "../manager/tweet.manager";
 
 const TweetCard = ({
   tweetUser,
@@ -9,7 +11,10 @@ const TweetCard = ({
   isFollowing,
   loggedInUser,
   updateUser,
+  updateTweetsOnFollow,
   removeUnfollowedUserTweets,
+  updateIsFollowing,
+  updateTweetsOnDelete,
   tweetId,
 }) => {
   if (isFollowing === undefined) {
@@ -27,8 +32,11 @@ const TweetCard = ({
     ).then((res) => {
       updateUser((prev) => {
         if (action === "follow") {
+          updateTweetsOnFollow(tweetUser._id);
+          updateIsFollowing(true);
           return { ...prev, following: [...prev.following, res.followedUser] };
         } else {
+          updateIsFollowing(false);
           removeUnfollowedUserTweets(tweetUser._id);
           return {
             ...prev,
@@ -43,11 +51,14 @@ const TweetCard = ({
     });
   };
 
-  // console.log("Tweet Card");
-  // console.log("Logged In User", loggedInUser);
-  // console.log("tweet user", tweetUser);
-  // console.log();
-
+  //updateTweetsOnDelete(tweetId)
+  const handleTweetDelete = (tweetId) => {
+    const { token } = getUserLoggedInUser();
+    destroyTweet(tweetId, token).then((res) => {
+      console.log(res);
+      updateTweetsOnDelete(res.data._id);
+    });
+  };
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent>
@@ -57,8 +68,13 @@ const TweetCard = ({
             {isFollowing ? "unfollow" : "follow"}
           </Button>
         ) : (
-          <Button variant="contained" disabled sx={{ mt: 2 }}>
-            its mine
+          <Button
+            variant="contained"
+            sx={{ mt: 2, minWidth: "5rem" }}
+            color="error"
+            onClick={() => handleTweetDelete(tweetId)}
+          >
+            <DeleteForeverIcon />
           </Button>
         )}
         <Box

@@ -7,6 +7,7 @@ const FollowingPanel = ({
   apiStatus,
   updateUser,
   removeUnfollowedUserTweets,
+  updateIsFollowing,
 }) => {
   if (apiStatus.loading) {
     return (
@@ -78,6 +79,7 @@ const FollowingPanel = ({
             tweetId={tweet._id}
             removeUnfollowedUserTweets={removeUnfollowedUserTweets}
             isFollowing
+            updateIsFollowing={updateIsFollowing}
           />
         ))}
       </Box>

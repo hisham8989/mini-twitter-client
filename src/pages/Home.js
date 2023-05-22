@@ -14,6 +14,7 @@ const Home = (props) => {
   // TODO FOLLOW UNFOLLOW TEXT
   // TODO UPDATE TWEET AND DELETE
 
+  const [isFollowing, setIsFollowing] = useState(false);
   const [follwerTweets, setFollwerTweets] = useState([]);
   const [allTweets, setAllTweets] = useState([]);
   const [follwerTweetsApiStatus, setfollwerTweetsApiStatus] = useState({
@@ -43,10 +44,15 @@ const Home = (props) => {
     });
   };
 
-  const addFollowedUserTweets = (tweet) => {
-    setFollwerTweets((prev) => {
-      return [...prev, tweet];
-    });
+  const updateTweetsOnFollow = async (userId) => {
+    const { token } = getUserLoggedInUser();
+    const res = await getTweets(userId, token);
+    if (res.success) {
+      setfollwerTweetsApiStatus((prev) => {
+        return { ...prev, loading: false, success: true };
+      });
+      setFollwerTweets(res.data);
+    }
   };
 
   const fetchFollowingTweets = async (userId, token) => {
@@ -60,13 +66,21 @@ const Home = (props) => {
   };
 
   const fetchAllTweets = async (token) => {
-    const res = await getTweets(token);
+    const res = await getTweets(null, token);
     if (res.success) {
       setAllTweetsApiStatus((prev) => {
         return { ...prev, loading: false, success: true };
       });
       setAllTweets(res.data);
     }
+  };
+
+  const updateIsFollowing = (val = false) => {
+    setIsFollowing(val);
+  };
+
+  const updateTweetsOnDelete = (tweetId) => {
+    setAllTweets((prev) => [...prev.filter((tweet) => tweet._id !== tweetId)]);
   };
 
   return (
@@ -84,8 +98,11 @@ const Home = (props) => {
               apiStatus={allTweetsApiStatus}
               addTweet={addTweet}
               updateUser={updateUser}
-              addFollowedUserTweets={addFollowedUserTweets}
+              updateTweetsOnFollow={updateTweetsOnFollow}
               removeUnfollowedUserTweets={removeUnfollowedUserTweets}
+              isFollowing={isFollowing}
+              updateIsFollowing={updateIsFollowing}
+              updateTweetsOnDelete={updateTweetsOnDelete}
             />
           </Paper>
         </Grid>
@@ -110,6 +127,7 @@ const Home = (props) => {
                 apiStatus={follwerTweetsApiStatus}
                 updateUser={updateUser}
                 removeUnfollowedUserTweets={removeUnfollowedUserTweets}
+                updateIsFollowing={updateIsFollowing}
               />
             </Paper>
           </Box>
