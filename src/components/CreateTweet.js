@@ -1,9 +1,15 @@
 import React from "react";
-import { Box, TextField, Button, Typography } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-const CreateTweet = ({ handleSubmit }) => {
+const CreateTweet = ({ handleSubmit, loading }) => {
   const validationSchema = Yup.object().shape({
     content: Yup.string()
       .required("Content is required")
@@ -36,14 +42,18 @@ const CreateTweet = ({ handleSubmit }) => {
                 />
               )}
             </Field>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              sx={{ mt: 2 }}
-            >
-              Add Tweet
-            </Button>
+            {!loading ? (
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                sx={{ mt: 2 }}
+              >
+                Add Tweet
+              </Button>
+            ) : (
+              <CircularProgress disableShrink />
+            )}
           </Form>
         )}
       </Formik>
