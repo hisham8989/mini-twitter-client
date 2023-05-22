@@ -1,4 +1,5 @@
 import { BASE_URL } from "../constants";
+import { destroyToken } from "./user.manager";
 
 export const getFollowingTweets = async (userId, token) => {
   try {
@@ -12,6 +13,7 @@ export const getFollowingTweets = async (userId, token) => {
     });
     return res.json();
   } catch (err) {
+    destroyToken();
     throw err;
   }
 };
@@ -28,6 +30,7 @@ export const getTweets = async (userId = null, token) => {
     });
     return res.json();
   } catch (err) {
+    destroyToken();
     throw err;
   }
 };
@@ -46,6 +49,7 @@ export const createTweet = async (content, userId, token) => {
     });
     return res.json();
   } catch (err) {
+    destroyToken();
     throw err;
   }
 };
@@ -62,6 +66,7 @@ export const destroyTweet = async (tweetId, token) => {
     });
     return res.json();
   } catch (err) {
+    destroyToken();
     throw err;
   }
 };

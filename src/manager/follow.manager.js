@@ -1,4 +1,5 @@
 import { BASE_URL } from "../constants";
+import { destroyToken } from "./user.manager";
 
 export const toggleFollowUnFollowUser = async (
   action,
@@ -17,6 +18,7 @@ export const toggleFollowUnFollowUser = async (
     });
     return res.json();
   } catch (err) {
+    destroyToken();
     throw err;
   }
 };

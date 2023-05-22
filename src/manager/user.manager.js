@@ -12,6 +12,7 @@ export const createUser = async (user) => {
     });
     return res.json();
   } catch (err) {
+    destroyToken();
     console.log(err);
     throw err;
   }
@@ -29,6 +30,7 @@ export const getUserByUserById = async (id, token) => {
     });
     return res.json();
   } catch (err) {
+    destroyToken();
     throw err;
   }
 };
@@ -45,6 +47,7 @@ export const loginUser = async (user) => {
     });
     return res.json();
   } catch (err) {
+    destroyToken();
     console.log(err);
     throw err;
   }
@@ -96,6 +99,7 @@ export const updateLoggedInUser = (userInfo) => {
       throw Error("no user logged in");
     }
   } catch (err) {
+    destroyToken();
     return {
       error: true,
       message: err,
@@ -113,6 +117,7 @@ export const getUserLoggedInUser = () => {
       throw Error("no user logged in");
     }
   } catch (err) {
+    destroyToken();
     return {
       error: true,
       message: err,

@@ -10,7 +10,12 @@ import {
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { PASSWORD_REGEX, USERNAME_REGEX } from "../constants";
-import { createUser, loginUser, saveToken } from "../manager/user.manager";
+import {
+  createUser,
+  destroyToken,
+  loginUser,
+  saveToken,
+} from "../manager/user.manager";
 import { useNavigate } from "react-router-dom";
 
 const LoginForm = (props) => {
@@ -32,11 +37,18 @@ const LoginForm = (props) => {
         }
       });
     } else {
-      signInUser(formValues).then((data) => {
-        updateLoggedIn(true);
-        updateUser(data.userInfo);
-        actions.setSubmitting(false);
-      });
+      signInUser(formValues)
+        .then((data) => {
+          updateLoggedIn(true);
+          updateUser(data.userInfo);
+          actions.setSubmitting(false);
+        })
+        .catch((err) => {
+          alert(err);
+          updateLoggedIn(false);
+          updateUser({});
+          actions.setSubmitting(false);
+        });
     }
   };
 
@@ -52,13 +64,16 @@ const LoginForm = (props) => {
   const signInUser = async (user) => {
     try {
       const response = await loginUser(user);
-      const { token, user: userInfo } = response;
-      if (token && userInfo) {
+      if (response.success) {
+        const { token, user: userInfo } = response;
         saveToken(JSON.stringify({ token, userInfo }));
         return { token, userInfo };
+      } else {
+        throw response.error;
       }
     } catch (err) {
-      console.log("err", err);
+      destroyToken();
+      throw err;
     }
   };
 

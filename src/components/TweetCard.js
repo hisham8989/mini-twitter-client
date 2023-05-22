@@ -55,7 +55,6 @@ const TweetCard = ({
   const handleTweetDelete = (tweetId) => {
     const { token } = getUserLoggedInUser();
     destroyTweet(tweetId, token).then((res) => {
-      console.log(res);
       updateTweetsOnDelete(res.data._id);
     });
   };
