@@ -1,14 +1,8 @@
 import { Box, Paper, Skeleton, Typography } from "@mui/material";
-import TweetCard from "./TweetCard";
 import { getUserLoggedInUser } from "../manager/user.manager";
+import FollowingTweetCard from "./FollowingTweetCard";
 
-const FollowingPanel = ({
-  tweets,
-  apiStatus,
-  updateUser,
-  removeUnfollowedUserTweets,
-  updateIsFollowing,
-}) => {
+const FollowingPanel = ({ tweets, apiStatus, updateUser, refreshTweets }) => {
   if (apiStatus.loading) {
     return (
       <Paper
@@ -70,16 +64,13 @@ const FollowingPanel = ({
         }}
       >
         {tweets.map((tweet, index) => (
-          <TweetCard
+          <FollowingTweetCard
             key={`tweet-card-${index + 1}`}
             updateUser={updateUser}
             tweetUser={tweet.user}
             content={tweet.content}
             loggedInUser={userInfo}
-            tweetId={tweet._id}
-            removeUnfollowedUserTweets={removeUnfollowedUserTweets}
-            isFollowing
-            updateIsFollowing={updateIsFollowing}
+            refreshTweets={refreshTweets}
           />
         ))}
       </Box>

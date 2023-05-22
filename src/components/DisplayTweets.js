@@ -2,16 +2,7 @@ import { Box, Skeleton, Typography } from "@mui/material";
 import TweetCard from "./TweetCard";
 import { getUserLoggedInUser } from "../manager/user.manager";
 
-const DisplayTweets = ({
-  tweets,
-  apiStatus,
-  updateUser,
-  updateTweetsOnFollow,
-  removeUnfollowedUserTweets,
-  isFollowing,
-  updateIsFollowing,
-  updateTweetsOnDelete,
-}) => {
+const DisplayTweets = ({ tweets, apiStatus, updateUser, refreshTweets }) => {
   if (apiStatus.loading) {
     return (
       <Box>
@@ -51,11 +42,8 @@ const DisplayTweets = ({
             content={tweet.content}
             loggedInUser={userInfo}
             tweetId={tweet._id}
-            updateTweetsOnFollow={updateTweetsOnFollow}
-            removeUnfollowedUserTweets={removeUnfollowedUserTweets}
-            updateIsFollowing={updateIsFollowing}
-            isFollowing={isFollowing}
-            updateTweetsOnDelete={updateTweetsOnDelete}
+            follow={tweet.follow}
+            refreshTweets={refreshTweets}
           />
         );
       })}

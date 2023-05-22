@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Container, Grid, Paper, Box } from "@mui/material";
 import UserInfo from "../components/UserInfo";
 import FollowingPanel from "../components/FollowingPanel";
@@ -9,79 +9,58 @@ import { getFollowingTweets, getTweets } from "../manager/tweet.manager";
 const Home = (props) => {
   const { user, updateLoggedIn, updateUser } = props;
 
-  // Start from here
-
-  // TODO FOLLOW UNFOLLOW TEXT
-  // TODO UPDATE TWEET AND DELETE
-
-  const [isFollowing, setIsFollowing] = useState(false); // for follow text
-  const [followingTweets, setFollowingTweets] = useState([]); // right container following panel
-  const [allTweets, setAllTweets] = useState([]); // main container , all tweets
+  const [followingTweets, setFollowingTweets] = useState([]);
+  const [allTweets, setAllTweets] = useState([]);
   const [followingTweetsApiStatus, setfollwingTweetsApiStatus] = useState({
     loading: true,
     success: false,
-  }); // following panel api status
+  });
   const [allTweetsApiStatus, setAllTweetsApiStatus] = useState({
     loading: true,
     success: false,
-  }); // main container , all tweets api status
+  });
+
+  const fetchFollowingTweets = useCallback(
+    async (token) => {
+      const res = await getFollowingTweets(user._id, token);
+      if (res.success) {
+        setfollwingTweetsApiStatus((prev) => {
+          return { ...prev, loading: false, success: true };
+        });
+        setFollowingTweets(res.data);
+      }
+    },
+    [user]
+  );
+
+  const fetchAllTweets = useCallback(
+    async (token) => {
+      const res = await getTweets(null, token);
+      if (res.success) {
+        setAllTweetsApiStatus((prev) => {
+          return { ...prev, loading: false, success: true };
+        });
+        const mainContainerTweets = res.data.map((tweet) => {
+          return {
+            ...tweet,
+            follow: tweet.user.followers.includes(user._id),
+          };
+        });
+        setAllTweets(mainContainerTweets);
+      }
+    },
+    [user]
+  );
+
+  const refreshTweets = useCallback(async () => {
+    const { token } = getUserLoggedInUser();
+    await fetchFollowingTweets(token);
+    await fetchAllTweets(token);
+  }, [fetchFollowingTweets, fetchAllTweets]);
 
   useEffect(() => {
-    const { userInfo, token } = getUserLoggedInUser();
-    fetchFollowingTweets(userInfo._id, token);
-    fetchAllTweets(token);
-  }, []);
-
-  const addTweet = (tweet) => {
-    setAllTweets((prev) => {
-      return [tweet, ...prev];
-    });
-  };
-
-  const removeUnfollowedUserTweets = (userId) => {
-    setFollowingTweets((prev) => {
-      return [...prev.filter((prevTweet) => prevTweet.user._id !== userId)];
-    });
-  };
-
-  const updateTweetsOnFollow = async (userId) => {
-    const { token } = getUserLoggedInUser();
-    const res = await getTweets(userId, token);
-    if (res.success) {
-      setfollwingTweetsApiStatus((prev) => {
-        return { ...prev, loading: false, success: true };
-      });
-      setFollowingTweets(res.data);
-    }
-  };
-
-  const fetchFollowingTweets = async (userId, token) => {
-    const res = await getFollowingTweets(userId, token);
-    if (res.success) {
-      setfollwingTweetsApiStatus((prev) => {
-        return { ...prev, loading: false, success: true };
-      });
-      setFollowingTweets(res.data);
-    }
-  };
-
-  const fetchAllTweets = async (token) => {
-    const res = await getTweets(null, token);
-    if (res.success) {
-      setAllTweetsApiStatus((prev) => {
-        return { ...prev, loading: false, success: true };
-      });
-      setAllTweets(res.data);
-    }
-  };
-
-  const updateIsFollowing = (val = false) => {
-    setIsFollowing(val);
-  };
-
-  const updateTweetsOnDelete = (tweetId) => {
-    setAllTweets((prev) => [...prev.filter((tweet) => tweet._id !== tweetId)]);
-  };
+    refreshTweets();
+  }, [refreshTweets]);
 
   return (
     <Container sx={{ paddingTop: 4, paddingBottom: 4 }}>
@@ -96,13 +75,8 @@ const Home = (props) => {
             <MainComponent
               tweets={allTweets}
               apiStatus={allTweetsApiStatus}
-              addTweet={addTweet}
+              refreshTweets={refreshTweets}
               updateUser={updateUser}
-              updateTweetsOnFollow={updateTweetsOnFollow}
-              removeUnfollowedUserTweets={removeUnfollowedUserTweets}
-              isFollowing={isFollowing}
-              updateIsFollowing={updateIsFollowing}
-              updateTweetsOnDelete={updateTweetsOnDelete}
             />
           </Paper>
         </Grid>
@@ -126,8 +100,7 @@ const Home = (props) => {
                 tweets={followingTweets}
                 apiStatus={followingTweetsApiStatus}
                 updateUser={updateUser}
-                removeUnfollowedUserTweets={removeUnfollowedUserTweets}
-                updateIsFollowing={updateIsFollowing}
+                refreshTweets={refreshTweets}
               />
             </Paper>
           </Box>

@@ -1,5 +1,12 @@
-import React from "react";
-import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
 import { toggleFollowUnFollowUser } from "../manager/follow.manager";
 import { getUserLoggedInUser } from "../manager/user.manager";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
@@ -8,64 +15,74 @@ import { destroyTweet } from "../manager/tweet.manager";
 const TweetCard = ({
   tweetUser,
   content,
-  isFollowing,
   loggedInUser,
   updateUser,
-  updateTweetsOnFollow,
-  removeUnfollowedUserTweets,
-  updateIsFollowing,
-  updateTweetsOnDelete,
   tweetId,
+  follow,
+  refreshTweets,
 }) => {
-  if (isFollowing === undefined) {
-    isFollowing = loggedInUser.following.includes(tweetUser._id);
-  }
+  const [loading, setLoading] = useState(false);
 
   const handleClick = (e) => {
-    const action = isFollowing ? "unfollow" : "follow";
+    const action = follow ? "unfollow" : "follow";
+    setLoading(true);
     const { token } = getUserLoggedInUser();
-    toggleFollowUnFollowUser(
-      action,
-      loggedInUser._id,
-      tweetUser._id,
-      token
-    ).then((res) => {
-      updateUser((prev) => {
-        if (action === "follow") {
-          updateTweetsOnFollow(tweetUser._id);
-          updateIsFollowing(true);
-          return { ...prev, following: [...prev.following, res.followedUser] };
-        } else {
-          updateIsFollowing(false);
-          removeUnfollowedUserTweets(tweetUser._id);
-          return {
-            ...prev,
-            following: [
-              ...prev.following.filter(
-                (following) => following !== res.unfollowedUser
-              ),
-            ],
-          };
-        }
+    toggleFollowUnFollowUser(action, loggedInUser._id, tweetUser._id, token)
+      .then((res) => {
+        updateUser((prev) => {
+          if (follow) {
+            // updateIsFollowing(true);
+            return {
+              ...prev,
+              following: [...prev.following, res.followedUser],
+            };
+          } else {
+            // updateIsFollowing(false);
+            return {
+              ...prev,
+              following: [
+                ...prev.following.filter(
+                  (following) => following !== res.unfollowedUser
+                ),
+              ],
+            };
+          }
+        });
+        refreshTweets();
+        setLoading(false);
+      })
+      .catch((err) => {
+        alert("some went wrong");
+        setLoading(false);
       });
-    });
   };
 
-  //updateTweetsOnDelete(tweetId)
   const handleTweetDelete = (tweetId) => {
+    setLoading(true);
     const { token } = getUserLoggedInUser();
-    destroyTweet(tweetId, token).then((res) => {
-      updateTweetsOnDelete(res.data._id);
-    });
+    destroyTweet(tweetId, token)
+      .then((res) => {
+        refreshTweets();
+        setLoading(false);
+      })
+      .catch((err) => {
+        alert("error with deleting tweet");
+        setLoading(false);
+      });
   };
+
   return (
     <Card sx={{ mb: 2 }}>
       <CardContent>
         <Typography variant="body2">{content}</Typography>
         {loggedInUser._id !== tweetUser._id ? (
-          <Button variant="outlined" onClick={handleClick} sx={{ mt: 2 }}>
-            {isFollowing ? "unfollow" : "follow"}
-          </Button>
+          loading ? (
+            <CircularProgress disableShrink />
+          ) : (
+            <Button variant="outlined" onClick={handleClick} sx={{ mt: 2 }}>
+              {follow ? "unfollow" : "follow"}
+            </Button>
+          )
         ) : (
           <Button
             variant="contained"
