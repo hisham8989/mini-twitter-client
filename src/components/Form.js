@@ -29,13 +29,21 @@ const LoginForm = (props) => {
     };
 
     if (isRegistration) {
-      registerUser(formValues).then(({ success }) => {
-        if (success) {
-          actions.setSubmitting(false);
-          actions.resetForm();
-          navigate("/login");
-        }
-      });
+      registerUser(formValues)
+        .then((res) => {
+          if (res.success) {
+            actions.setSubmitting(false);
+            actions.resetForm();
+            navigate("/login");
+          } else {
+            actions.setSubmitting(false);
+            actions.resetForm();
+            throw Error(res.error);
+          }
+        })
+        .catch((err) => {
+          alert(err);
+        });
     } else {
       signInUser(formValues)
         .then((data) => {
