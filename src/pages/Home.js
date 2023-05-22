@@ -14,17 +14,17 @@ const Home = (props) => {
   // TODO FOLLOW UNFOLLOW TEXT
   // TODO UPDATE TWEET AND DELETE
 
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [follwerTweets, setFollwerTweets] = useState([]);
-  const [allTweets, setAllTweets] = useState([]);
-  const [follwerTweetsApiStatus, setfollwerTweetsApiStatus] = useState({
+  const [isFollowing, setIsFollowing] = useState(false); // for follow text
+  const [followingTweets, setFollowingTweets] = useState([]); // right container following panel
+  const [allTweets, setAllTweets] = useState([]); // main container , all tweets
+  const [followingTweetsApiStatus, setfollwingTweetsApiStatus] = useState({
     loading: true,
     success: false,
-  });
+  }); // following panel api status
   const [allTweetsApiStatus, setAllTweetsApiStatus] = useState({
     loading: true,
     success: false,
-  });
+  }); // main container , all tweets api status
 
   useEffect(() => {
     const { userInfo, token } = getUserLoggedInUser();
@@ -39,7 +39,7 @@ const Home = (props) => {
   };
 
   const removeUnfollowedUserTweets = (userId) => {
-    setFollwerTweets((prev) => {
+    setFollowingTweets((prev) => {
       return [...prev.filter((prevTweet) => prevTweet.user._id !== userId)];
     });
   };
@@ -48,20 +48,21 @@ const Home = (props) => {
     const { token } = getUserLoggedInUser();
     const res = await getTweets(userId, token);
     if (res.success) {
-      setfollwerTweetsApiStatus((prev) => {
+      setfollwingTweetsApiStatus((prev) => {
         return { ...prev, loading: false, success: true };
       });
-      setFollwerTweets(res.data);
+      setFollowingTweets(res.data);
     }
   };
 
   const fetchFollowingTweets = async (userId, token) => {
     const res = await getFollowingTweets(userId, token);
+    console.log("db fetch following tweets", res);
     if (res.success) {
-      setfollwerTweetsApiStatus((prev) => {
+      setfollwingTweetsApiStatus((prev) => {
         return { ...prev, loading: false, success: true };
       });
-      setFollwerTweets(res.data);
+      setFollowingTweets(res.data);
     }
   };
 
@@ -82,6 +83,9 @@ const Home = (props) => {
   const updateTweetsOnDelete = (tweetId) => {
     setAllTweets((prev) => [...prev.filter((tweet) => tweet._id !== tweetId)]);
   };
+
+  console.log("fetch following tweets", fetchFollowingTweets);
+  console.log("fetch All tweets", fetchAllTweets);
 
   return (
     <Container sx={{ paddingTop: 4, paddingBottom: 4 }}>
@@ -123,8 +127,8 @@ const Home = (props) => {
               }}
             >
               <FollowingPanel
-                tweets={follwerTweets}
-                apiStatus={follwerTweetsApiStatus}
+                tweets={followingTweets}
+                apiStatus={followingTweetsApiStatus}
                 updateUser={updateUser}
                 removeUnfollowedUserTweets={removeUnfollowedUserTweets}
                 updateIsFollowing={updateIsFollowing}
